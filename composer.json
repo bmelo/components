@@ -1,6 +1,7 @@
 {
     "name": "bruno-melo/components",
     "description": "Package with a mix of tools to help in the development with PHP.",
+    "license": "(LGPL-2.1 or GPL-3.0+)",
     "authors": [ 
         {
             "name": "Bruno Melo",
@@ -11,9 +12,9 @@
         "php": ">=5.4"
     },
     "require-dev": {
-        "phpunit/phpunit" : ">=4.0"
+
     },
     "autoload": {
-        "bmelo\\": "PHP/"
+        "psr-4": { "BMelo\\": "PHP/" }
     }
 }
