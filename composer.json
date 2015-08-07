@@ -2,6 +2,7 @@
     "name": "bruno-melo/components",
     "description": "Package with a mix of tools to help in the development with PHP.",
     "license": "(LGPL-2.1 or GPL-3.0+)",
+    "minimum-stability": "dev",
     "authors": [ 
         {
             "name": "Bruno Melo",
