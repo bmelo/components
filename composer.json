@@ -1,0 +1,19 @@
+{
+    "name": "bruno-melo/components",
+    "description": "Package with a mix of tools to help in the development with PHP.",
+    "authors": [ 
+        {
+            "name": "Bruno Melo",
+            "email": "bruno.raphael@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : ">=4.0"
+    },
+    "autoload": {
+        "bmelo\\": "PHP/"
+    }
+}
