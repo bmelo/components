@@ -1,5 +1,5 @@
 <?php
-
+namespace BMelo;
 /**
  * Description of Server
  *

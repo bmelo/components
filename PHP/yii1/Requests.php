@@ -1,4 +1,5 @@
 <?php
+namespace BMelo\yii1\Requests;
 
 /**
  * Description of CRequests

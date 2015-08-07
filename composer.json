@@ -3,6 +3,7 @@
     "description": "Package with a mix of tools to help in the development with PHP.",
     "license": "(LGPL-2.1 or GPL-3.0+)",
     "minimum-stability": "dev",
+    "type": "library",
     "authors": [ 
         {
             "name": "Bruno Melo",
