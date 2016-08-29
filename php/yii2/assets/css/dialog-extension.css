@@ -1,0 +1,231 @@
+/* 
+    Created on : 03/02/2015, 23:42:32
+    Author     : Bruno
+*/
+/* AJUSTES GERAIS */
+div.loading{
+    background:url('../images/loading.gif') center center no-repeat;
+    width:100%;
+    height:100px;
+}
+
+/* AJUSTES ESPECIFICOS PARA VISUALIZAÇÃO DE IMAGENS */ 
+.atendimento-verDados #col-main{ background: #000000; position:relative; margin: 0 62px 0 14em; height:100%; }
+div.wrapper-cols.atendimento-verDados{ background: #000000; }
+#image_viewer{ 
+    height:95%;
+    height:-moz-calc(100% - 20px);
+    height:calc(100% - 20px);
+    height:-webkit-calc(100% - 20px);
+}
+
+.delfilter{
+    margin-left: 7px;
+    background: url('../images/botao_fechar.png') no-repeat;
+    width:20px; height:20px;
+    display:inline-block;
+}
+#imagem img {
+    max-width: 100%;
+    max-height: 100%;
+}
+#imagem{
+    margin: auto;
+    width: 100%;
+    height: 40em;
+}
+
+#menuImgs{ margin:0; padding:0; font-size:1.2em; font-weight:bolder;}
+#menuImgs img{border-radius: 5px; }
+#menuImgs, #menuImgs ul{ list-style-type: none; }
+#menuImgs > li{ padding:10px; }
+#menuImgs > li:nth-child(2n){ background:#c3d9ff; }
+#menuImgs > li:nth-child(2n+1){ background:#e5eCf9; }
+
+#menuImgs li ul{ margin-top:0.5em; }
+#menuImgs li ul li{ margin-bottom:2px; padding-bottom:0; height:68px; display:inline; }
+#menuImgs li ul li:last-child{ margin-bottom:0; }
+#menuImgs li img{ border:2px solid transparent; width:64px;}
+#menuImgs li img:hover{ border:2px solid blue; }
+#menuImgs li.active img{ border:2px solid white; }
+.desc.small{ font-size:0.75em; line-height: 1em; margin:4px 0 0 6px; padding-left:3px; border-left:4px solid peru; }
+
+div.dlgHelFilter{ text-align: center; }
+div.dlgHelFilter div{
+    margin-left:-60px;
+    border: 1px solid burlywood;
+    border-radius: 10px 10px 10px 10px;
+    box-shadow: 3px 3px saddlebrown;
+    position:relative; 
+    position:absolute; 
+    display:none; 
+    background:white; 
+    padding:10px 20px;
+}
+
+div.ui-dialog[aria-labelledby=ui-dialog-title-viewAtendimentoDlg] .ui-dialog-titlebar{
+    border:none;
+    padding-top:12px;
+}
+.ui-dialog{
+    border:none !important;
+    padding:0 !important;
+    z-index: 9998;
+}
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br{
+    border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+}
+#introWrap{
+    position:relative;
+    width:462px;	
+    text-align: center;
+    margin:80px auto; 
+    height:230px;
+}
+#intro{ 
+    position:absolute;
+    text-align: center; 
+    padding:20px; 
+    width:420px; 
+    border:1px solid gainsboro; 
+    border-radius: 10px;
+}
+
+div.form .row.row-inline, .row-inline{ display:inline-block; margin-right:15px; }
+div.bootstrap-widget{ margin-bottom:15px; }
+
+#alertMsgs{ text-align: center; position:relative; position:fixed; width:100%; left:0; top:140px; }
+#alertMsgs div{ z-index:10000; width:50%; display: block; margin: 0 auto; }
+.row label{ font-size: 0.9em; font-weight: bold; display:block; }
+
+.gray{ color:#555555; }
+.text-danger{ color:#a94442; }
+.half-size{ font-size:0.5em; }
+
+#mainmenu > ul{ font-size:22px; line-height: 1em; }
+
+#toolbar-user{ top:0; left:0; z-index:9999; text-align:right; width:calc(100% - 40px); padding:4px 20px; }
+.bootbox.modal{ z-index:100000; }
+.modal-backdrop{ z-index:99990; }
+#toolbar-user ul, #toolbar-user ul li{ list-style: none; display:inline-block; padding:0; margin:0; }
+.userLink .actions{ margin-right:6px; display:inline-block; font-size: 24px; line-height: 1em; }
+.userLink .actions .link-bug{ margin-right:25px; }
+
+.small{ font-size:0.8em; }
+.center{ text-align:center; }
+
+.dropdown-menu{z-index:9999;}
+.bootstrap-widget-header, .bootstrap-widget-header .bootstrap-toolbar{ height:2.35em; }
+.bootstrap-widget-header a{ margin:0; padding:0; }
+.bootstrap-widget-header h3{ margin:0; padding:0; top:0; line-height:2.4em; }
+.bootstrap-widget-header .bootstrap-toolbar > a.btn{ margin:0; padding:0 3px; margin-top:0.55em }
+
+/* DASHBOARD */
+.ajax .grid-view, .ajax .grid-view table{ margin:0; padding:0; }
+
+/* MENU */
+nav.menu{ background: none repeat scroll 0 0 gainsboro; color: teal; margin-bottom: 15px; width: 100%; margin-top:-12px; border-bottom:1px solid gray; }
+nav.menu a{ color:inherit; text-decoration: none; display:block; height:100%; padding:0.5em 1.6em; }
+nav.menu li{ list-style: none; float:left; }
+nav.menu li:hover:not(.active){ text-decoration: underline; }
+nav.menu li.active{ color:blue; border-bottom: none; background-color:white; border:1px solid gray; border-bottom:none; margin-bottom:-1px;}
+
+/* LAUDO */
+.laudo .cabecalho{ border-bottom: 1px solid #ddd; }
+.laudo .cabecalho .medico:before{ content: "Laudado por:"; margin-right:5px; font-weight: normal; }
+.laudo .cabecalho .medico{ font-weight: bolder; }
+.laudo .cabecalho .data:before{ content: " em "; margin:0 0.5em; font-weight: normal; }
+.laudo .cabecalho .data{ font-weight: bolder; }
+
+/* TOOLTIP */
+.ui-tooltip, .arrow:after {
+    background: whitesmoke;
+    border: 2px solid white;
+    z-index:99999;
+}
+.ui-tooltip h1{
+    color:#333;
+    font-size:1.2em;
+}
+.ui-tooltip ul{ margin-bottom:0; }
+.ui-tooltip {
+    padding: 10px 20px;
+    color: #333;
+    border-radius: 20px;
+    font: bold 14px "Helvetica Neue", Sans-Serif;
+    text-transform: uppercase;
+    box-shadow: 0 0 7px black;
+}
+.arrow {
+    width: 70px;
+    height: 16px;
+    overflow: hidden;
+    position: absolute;
+    left: 50%;
+    margin-left: -35px;
+    bottom: -16px;
+}
+.arrow.top {
+    top: -16px;
+    bottom: auto;
+}
+.arrow.left {
+    left: 20%;
+}
+.arrow:after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: -20px;
+    width: 25px;
+    height: 25px;
+    box-shadow: 6px 5px 9px -9px black;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.arrow.top:after {
+    bottom: -20px;
+    top: auto;
+}
+div.ui-tooltip.imTooltip .ui-tooltip-content{ font-size:.8em; }
+[data-tooltip-content]{ border-bottom: 1px dashed gray; }
+
+.ui-autocomplete .ui-menu-item:hover,.ui-autocomplete .ui-state-focus{
+    background: #0088cc; cursor:pointer; color:white; 
+}
+
+/* DIALOG IFRAME */
+#dlgDicomViewer{ background:#000; padding:0; overflow:hidden; }
+#dlgDicomViewer .pre i{ color:white; }
+.dialogIM .pre{ height:100%; text-align:center; position:relative;}
+.dialogIM .pre i{ position:absolute; top:50%; right:50%; margin:-.5em -.5em 0 0; color:#65A5CC;}
+.dialogIM iframe{ width:100%; height:100%; border:0; }
+
+form div.row{ margin-left:0; margin-right:0; }
+a.btn-primary, a.btn-success{ color:white; }
+.btn a{ color:inherit; }
+.ui-dialog .ui-dialog-titlebar-close span{ margin:0; }
+
+/*melhorando layout do cabeçalho*/
+.ui-dialog .ui-dialog-titlebar{ 
+    font-size:0.85em !important; 
+    background: #e1eaf2; 
+    color: #326d9a;
+    min-height:2.2em;
+}
+.ui-dialog .ui-dialog-titlebar .ui-dialog-title{ margin:0; padding:0.1em 0; }
+.ui-dialog .ui-dialog-titlebar-close{ 
+    border:none; background:#dddddd; opacity: 1;
+    height:100%; width:3em; margin:0; top:0; right:0; 
+    color:black;
+}
+.ui-dialog .ui-dialog-titlebar-close:hover{ background:#e81123; color:white; }
+.btnClose:before{ content:'\2716'; } /* &times (\00d7) || &#10006 (\2716) */
+.ui-dialog .btnClose{ color:inherit; font-size:1.7em; font-weight: 100;}
+
+.ui-widget-overlay{ background:black; opacity: 0.5; }

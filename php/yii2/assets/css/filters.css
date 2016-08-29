@@ -1,0 +1,20 @@
+/* 
+    Created on : 25/01/2016, 16:51:18
+    Author     : Bruno Melo <bruno.raphael@gmail.com>
+*/
+
+/** MULTISELECT **/
+.multiselect-container > li > a > label {
+    cursor: pointer;
+    font-weight: 400;
+    height: 100%;
+    margin: 0;
+    padding: 3px 0px;
+}
+
+.multiselect-container.dropdown-menu > li > a{ padding:3px 8px 0 28px; }
+button.multiselect .empty{ padding:0 1.5em; display:inline-block;}
+.filters .btn-group{ min-width:100%;}
+.filters .btn-group button{ padding-right: 18px; text-align:left; min-width: 100%; }
+.filters .btn-group button .caret{ position:absolute; top:50%; right:5px; }
+
