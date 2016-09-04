@@ -16,4 +16,10 @@ class Texto {
   public static function onlyNumbers( $text ){
     return preg_replace( '/\D/', null, $text );
   }
+  
+  public static function formatFilenameWeb( $text ){
+      $text = self::removeAcentos(strtolower($text));
+      $text = preg_replace('/[^\w-\[\]\.]/',' ',$text);
+      return preg_replace('/ +/','_', trim($text) );
+  }
 }
