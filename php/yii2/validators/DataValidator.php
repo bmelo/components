@@ -2,7 +2,7 @@
 namespace bmelo\yii2\validators;
 
 use yii\validators\DateValidator;
-use idor\components\Date;
+use bmelo\components\Date;
 /**
  * Description of CPF
  *
