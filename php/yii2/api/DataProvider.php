@@ -14,7 +14,7 @@ use yii\di\Instance;
  * 
  * @author Bruno Melo <bruno.raphael@gmail.com>
  */
-class APIDataProvider extends BaseDataProvider
+class DataProvider extends BaseDataProvider
 {
     /**
      * @var APIConnection|array|string the DB connection object or the application component ID of the DB connection.
@@ -48,7 +48,7 @@ class APIDataProvider extends BaseDataProvider
     {
         parent::init();
         if (is_string($this->api)) {
-            $this->api = Instance::ensure($this->api, APIConnection::className());
+            $this->api = Instance::ensure($this->api, Connection::className());
         }
     }
 
@@ -57,19 +57,36 @@ class APIDataProvider extends BaseDataProvider
      */
     protected function prepareModels()
     {
-        if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. yii\db\Query or its subclasses.');
+        if (!$this->query instanceof Query) {
+            throw new InvalidConfigException('The "query" property must be an instance of a class bmelo\yii2\api\Query or its subclasses.');
         }
         $query = clone $this->query;
-        if (($pagination = $this->getPagination()) !== false) {
-            $pagination->totalCount = $this->getTotalCount();
-            $query->limit($pagination->getLimit())->offset($pagination->getOffset());
-        }
         if (($sort = $this->getSort()) !== false) {
             $query->addOrderBy($sort->getOrders());
         }
+        if (($pagination = $this->getPagination()) !== false) {
+            $query->limit($pagination->getLimit())->offset($pagination->getOffset());
+        }
+        $results = $query->all($this->api);
+        if( $pagination!== false ){
+            $pagination->totalCount = $query->count();
+        }
 
-        return $query->all($this->api);
+        return $this->buildModels( $results );
+    }
+    
+    /**
+     * Prepare models using data received from API
+     * @param array $data
+     * @return Model[]
+     */
+    protected function buildModels( $dataModels ){
+        $modelClass = new $this->query->modelClass;
+        $models = [];
+        foreach( $dataModels as $dataModel){
+            $models[] = new $modelClass($dataModel);
+        }
+        return $models;
     }
 
     /**
@@ -118,11 +135,8 @@ class APIDataProvider extends BaseDataProvider
      */
     protected function prepareTotalCount()
     {
-        if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. yii\db\Query or its subclasses.');
-        }
-        $query = clone $this->query;
-        return (int) $query->limit(-1)->offset(-1)->orderBy([])->count('*', $this->api);
+        $this->query->all();
+        return $this->query->count();
     }
 
     /**

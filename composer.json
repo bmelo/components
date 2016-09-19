@@ -13,7 +13,8 @@
     "prefer-stable" : true,
     "require": {
         "php": ">=5.4",
-        "dmstr/yii2-adminlte-asset": "2.*"
+        "ext-curl": "*",
+        "maxwen/yii2-curl": "*"
     },
     "config": {
         "vendor-dir": "vendor",

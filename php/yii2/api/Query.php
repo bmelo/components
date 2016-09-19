@@ -9,10 +9,10 @@ use yii\base\Component;
  * Query represents a SELECT SQL statement in a way that is independent of DBMS.
  * @author Bruno Melo <bruno.raphael@gmail.com>
  */
-class Query extends Component implements QueryInterface
+class Query extends Component
 {
-    use QueryTrait;
-
+    use \yii\db\QueryTrait;
+    
     /**
      * @var array the columns being selected. For example, `['id', 'name']`.
      * This is used to construct the SELECT clause in a SQL statement. If not set, it means selecting all columns.
@@ -76,30 +76,34 @@ class Query extends Component implements QueryInterface
      * For example, `[':name' => 'Dan', ':age' => 31]`.
      */
     public $params = [];
-
+    
+    protected $_lastCommand;
 
     /**
      * Creates a DB command that can be used to execute this query.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $api the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return Command the created DB command instance.
      */
-    public function createCommand($db = null)
+    public function createCommand($api = null)
     {
-        if ($db === null) {
-            $db = Yii::$app->getDb();
+        if ($api === null) {
+            $api = Yii::$app->getApi();
         }
-        list ($sql, $params) = $db->getQueryBuilder()->build($this);
-
-        return $db->createCommand($sql, $params);
+        list ($request, $params) = $api->getQueryBuilder()->build($this);
+        
+        $command = $api->createCommand($request, $params);
+        $this->_lastCommand = $command;
+        
+        return $command;
     }
 
     /**
      * Prepares for building SQL.
-     * This method is called by [[QueryBuilder]] when it starts to build SQL from a query object.
+     * This method is called by [[RequestBuilder]] when it starts to build SQL from a query object.
      * You may override this method to do some final preparation work when converting a query into a SQL statement.
      * @param QueryBuilder $builder
-     * @return $this a prepared query instance which will be used by [[QueryBuilder]] to build the SQL
+     * @return $this a prepared query instance which will be used by [[RequestBuilder]] to build the SQL
      */
     public function prepare($builder)
     {
@@ -123,17 +127,17 @@ class Query extends Component implements QueryInterface
      * ```
      *
      * @param integer $batchSize the number of records to be fetched in each batch.
-     * @param Connection $db the database connection. If not set, the "db" application component will be used.
+     * @param Connection $api the database connection. If not set, the "db" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the [[\Iterator]] interface
      * and can be traversed to retrieve the data in batches.
      */
-    public function batch($batchSize = 100, $db = null)
+    public function batch($batchSize = 100, $api = null)
     {
         return Yii::createObject([
             'class' => BatchQueryResult::className(),
             'query' => $this,
             'batchSize' => $batchSize,
-            'db' => $db,
+            'db' => $api,
             'each' => false,
         ]);
     }
@@ -150,219 +154,86 @@ class Query extends Component implements QueryInterface
      * ```
      *
      * @param integer $batchSize the number of records to be fetched in each batch.
-     * @param Connection $db the database connection. If not set, the "db" application component will be used.
+     * @param Connection $api the database connection. If not set, the "db" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the [[\Iterator]] interface
      * and can be traversed to retrieve the data in batches.
      */
-    public function each($batchSize = 100, $db = null)
+    public function each($batchSize = 100, $api = null)
     {
         return Yii::createObject([
             'class' => BatchQueryResult::className(),
             'query' => $this,
             'batchSize' => $batchSize,
-            'db' => $db,
+            'db' => $api,
             'each' => true,
         ]);
     }
 
     /**
      * Executes the query and returns all results as an array.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $api the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($db = null)
+    public function all($api = null)
     {
-        $rows = $this->createCommand($db)->queryAll();
-        return $this->populate($rows);
-    }
-
-    /**
-     * Converts the raw query results into the format as specified by this query.
-     * This method is internally used to convert the data fetched from database
-     * into the format as required by this query.
-     * @param array $rows the raw query result from database
-     * @return array the converted query result
-     */
-    public function populate($rows)
-    {
-        if ($this->indexBy === null) {
-            return $rows;
-        }
-        $result = [];
-        foreach ($rows as $row) {
-            if (is_string($this->indexBy)) {
-                $key = $row[$this->indexBy];
-            } else {
-                $key = call_user_func($this->indexBy, $row);
-            }
-            $result[$key] = $row;
-        }
-        return $result;
+        $command = $this->createCommand($api);
+        return $command->queryAll();
     }
 
     /**
      * Executes the query and returns a single row of result.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $api the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return array|boolean the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      */
-    public function one($db = null)
+    public function one($api = null)
     {
-        return $this->createCommand($db)->queryOne();
+        return $this->createCommand($api)->queryOne();
     }
 
     /**
      * Returns the query result as a scalar value.
      * The value returned will be the first column in the first row of the query results.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $api the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return string|null|false the value of the first column in the first row of the query result.
      * False is returned if the query result is empty.
      */
-    public function scalar($db = null)
+    public function scalar($api = null)
     {
-        return $this->createCommand($db)->queryScalar();
-    }
-
-    /**
-     * Executes the query and returns the first column of the result.
-     * @param Connection $db the database connection used to generate the SQL statement.
-     * If this parameter is not given, the `db` application component will be used.
-     * @return array the first column of the query result. An empty array is returned if the query results in nothing.
-     */
-    public function column($db = null)
-    {
-        if (!is_string($this->indexBy)) {
-            return $this->createCommand($db)->queryColumn();
-        }
-        if (is_array($this->select) && count($this->select) === 1) {
-            $this->select[] = $this->indexBy;
-        }
-        $rows = $this->createCommand($db)->queryAll();
-        $results = [];
-        foreach ($rows as $row) {
-            if (array_key_exists($this->indexBy, $row)) {
-                $results[$row[$this->indexBy]] = reset($row);
-            } else {
-                $results[] = reset($row);
-            }
-        }
-        return $results;
+        return $this->createCommand($api)->queryScalar();
     }
 
     /**
      * Returns the number of records.
-     * @param string $q the COUNT expression. Defaults to '*'.
-     * Make sure you properly [quote](guide:db-dao#quoting-table-and-column-names) column names in the expression.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $api the database connection used to generate the SQL statement.
      * If this parameter is not given (or null), the `db` application component will be used.
      * @return integer|string number of records. The result may be a string depending on the
      * underlying database engine and to support integer values higher than a 32bit PHP integer can handle.
      */
-    public function count($q = '*', $db = null)
+    public function count($api = null)
     {
-        return $this->queryScalar("COUNT($q)", $db);
-    }
-
-    /**
-     * Returns the sum of the specified column values.
-     * @param string $q the column name or expression.
-     * Make sure you properly [quote](guide:db-dao#quoting-table-and-column-names) column names in the expression.
-     * @param Connection $db the database connection used to generate the SQL statement.
-     * If this parameter is not given, the `db` application component will be used.
-     * @return mixed the sum of the specified column values.
-     */
-    public function sum($q, $db = null)
-    {
-        return $this->queryScalar("SUM($q)", $db);
-    }
-
-    /**
-     * Returns the average of the specified column values.
-     * @param string $q the column name or expression.
-     * Make sure you properly [quote](guide:db-dao#quoting-table-and-column-names) column names in the expression.
-     * @param Connection $db the database connection used to generate the SQL statement.
-     * If this parameter is not given, the `db` application component will be used.
-     * @return mixed the average of the specified column values.
-     */
-    public function average($q, $db = null)
-    {
-        return $this->queryScalar("AVG($q)", $db);
-    }
-
-    /**
-     * Returns the minimum of the specified column values.
-     * @param string $q the column name or expression.
-     * Make sure you properly [quote](guide:db-dao#quoting-table-and-column-names) column names in the expression.
-     * @param Connection $db the database connection used to generate the SQL statement.
-     * If this parameter is not given, the `db` application component will be used.
-     * @return mixed the minimum of the specified column values.
-     */
-    public function min($q, $db = null)
-    {
-        return $this->queryScalar("MIN($q)", $db);
-    }
-
-    /**
-     * Returns the maximum of the specified column values.
-     * @param string $q the column name or expression.
-     * Make sure you properly [quote](guide:db-dao#quoting-table-and-column-names) column names in the expression.
-     * @param Connection $db the database connection used to generate the SQL statement.
-     * If this parameter is not given, the `db` application component will be used.
-     * @return mixed the maximum of the specified column values.
-     */
-    public function max($q, $db = null)
-    {
-        return $this->queryScalar("MAX($q)", $db);
+        if( empty($this->_lastCommand) ){
+            $this->createCommand($api)->queryAll();
+        }
+        return $this->_lastCommand->getResponseHeader('X-Pagination-Total-Count');
     }
 
     /**
      * Returns a value indicating whether the query result contains any row of data.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $api the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return boolean whether the query result contains any row of data.
      */
-    public function exists($db = null)
+    public function exists($api = null)
     {
-        $command = $this->createCommand($db);
+        $command = $this->createCommand($api);
         $params = $command->params;
         $command->setSql($command->db->getQueryBuilder()->selectExists($command->getSql()));
         $command->bindValues($params);
         return (boolean)$command->queryScalar();
-    }
-
-    /**
-     * Queries a scalar value by setting [[select]] first.
-     * Restores the value of select to make this query reusable.
-     * @param string|Expression $selectExpression
-     * @param Connection|null $db
-     * @return boolean|string
-     */
-    protected function queryScalar($selectExpression, $db)
-    {
-        $select = $this->select;
-        $limit = $this->limit;
-        $offset = $this->offset;
-
-        $this->select = [$selectExpression];
-        $this->limit = null;
-        $this->offset = null;
-        $command = $this->createCommand($db);
-
-        $this->select = $select;
-        $this->limit = $limit;
-        $this->offset = $offset;
-
-        if (empty($this->groupBy) && empty($this->having) && empty($this->union) && !$this->distinct) {
-            return $command->queryScalar();
-        } else {
-            return (new Query)->select([$selectExpression])
-                ->from(['c' => $this])
-                ->createCommand($command->db)
-                ->queryScalar();
-        }
     }
 
     /**

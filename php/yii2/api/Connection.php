@@ -13,7 +13,7 @@ use yii\caching\Cache;
  *
  * @author Bruno Melo <bruno.raphael@gmail.com>
  */
-class APIConnection extends Component
+class Connection extends Component
 {
     /**
      * @var string contains the base url required to connect to the API.
@@ -72,7 +72,7 @@ class APIConnection extends Component
      * @see createCommand
      * @since 2.0.7
      */
-    public $commandClass = 'yii\db\Command';
+    public $commandClass = 'bmelo\yii2\api\Command';
     /**
      * @var Cache|string the cache object or the ID of the cache application component that is used to store
      * the health status of the DB servers specified in [[masters]] and [[slaves]].
@@ -88,6 +88,10 @@ class APIConnection extends Component
      * @var array query cache parameters for the [[cache()]] calls
      */
     private $_queryCacheInfo = [];
+    /**
+     * @var RequestBuilder query cache parameters for the [[cache()]] calls
+     */
+    public $requestBuilder = null;
 
 
     /**
@@ -209,27 +213,29 @@ class APIConnection extends Component
     
     /**
      * Creates a command for execution.
-     * @param string $sql the SQL statement to be executed
+     * @param string $request the SQL statement to be executed
      * @param array $params the parameters to be bound to the SQL statement
      * @return Command the DB command
      */
-    public function createCommand($sql = null, $params = [])
+    public function createCommand($request = null, $params = [])
     {
         /** @var Command $command */
-        $command = new $this->commandClass([
-            'db' => $this,
-            'sql' => $sql,
+        return new $this->commandClass([
+            'api' => $this,
+            'request' => $request,
+            'params' => $params
         ]);
-
-        return $command->bindValues($params);
     }
 
     /**
      * Returns the query builder for the current DB connection.
      * @return QueryBuilder the query builder for the current DB connection.
      */
-    public function getQueryBuilder()
+    public function getRequestBuilder()
     {
-        return $this->getSchema()->getQueryBuilder();
+        if( $this->requestBuilder === null ){
+            $this->requestBuilder = new RequestBuilder();
+        }
+        return $this->requestBuilder;
     }
 }
