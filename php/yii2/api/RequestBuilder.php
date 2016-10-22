@@ -29,19 +29,18 @@ class RequestBuilder extends \yii\base\Object {
      * parameters to be bound to the SQL statement (the second array element). The parameters returned
      * include those provided in `$params`.
      */
-    public function build($query, $params = []) {
+    public function build($query) {
         $modelClass = $query->modelClass;
         $this->_baseUrl = $modelClass::getApiUrlBase();
 
         $query->prepare($this);
 
-        $params = empty($params) ? $query->params : array_merge($params, $query->params);
-
         $clauses = ArrayHelper::merge(
             $this->buildSelect($query->select, $query->distinct, $query->selectOption), 
-            $this->buildJoin($query->join, $params), 
-            $this->buildOrderByAndLimit($query->orderBy, $query->limit, $query->offset)
-            //$this->buildWhere($query->where, $params)
+            $this->buildOrderByAndLimit($query->orderBy, $query->limit, $query->offset),
+            $this->buildFilter($modelClass, $query->where),
+            ['page' => Yii::$app->request->get('page')],
+            $this->buildExpand($query->with)
         );
 
         if (!empty($query->orderBy)) {
@@ -78,93 +77,32 @@ class RequestBuilder extends \yii\base\Object {
      * @return string the JOIN clause built from [[Query::$join]].
      * @throws Exception if the $joins parameter is not in proper format
      */
-    public function buildJoin($joins) {
-        $query = [];
-        if (!empty($joins)) {
-            $query = $this->implode(array_keys($joins));
+    public function buildExpand($joins) {
+        $expands = [];
+        if( is_array($joins) ){
+            foreach($joins as $item){
+                $expands[] = is_array($item) ? array_key($item) : $item;
+            }
         }
-
-        return $query;
+        return ['expand' => implode(',', $joins)];
     }
 
     /**
+     * @param string $modelClass
      * @param string|array $condition
-     * @param array $params the binding parameters to be populated
-     * @return string the WHERE clause built from [[Query::$where]].
+     * @return array with filters built from [[Query::$condition]].
      */
-    public function buildWhere($condition, &$params) {
-        $where = $this->buildCondition($condition, $params);
-
-        return $where === '' ? '' : 'WHERE ' . $where;
-    }
-
-    /**
-     * Parses the condition specification and generates the corresponding SQL expression.
-     * @param string|array|Expression $condition the condition specification. Please refer to [[Query::where()]]
-     * on how to specify a condition.
-     * @param array $params the binding parameters to be populated
-     * @return string the generated SQL expression
-     */
-    public function buildCondition($condition, &$params) {
-        if ($condition instanceof Expression) {
-            foreach ($condition->params as $n => $v) {
-                $params[$n] = $v;
+    public function buildFilter($modelClass, $condition) {
+        $httpFilters = Yii::$app->request->get();
+        $pat = '/Search$/';
+        $filters = [];
+        foreach( $httpFilters as $filter => $value ){
+            if( preg_match( $pat, $filter ) ){
+                $filters[$filter] = $value;
             }
-            return $condition->expression;
-        } elseif (!is_array($condition)) {
-            return (string) $condition;
-        } elseif (empty($condition)) {
-            return '';
         }
-
-        if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
-            $operator = strtoupper($condition[0]);
-            if (isset($this->conditionBuilders[$operator])) {
-                $method = $this->conditionBuilders[$operator];
-            } else {
-                $method = 'buildSimpleCondition';
-            }
-            array_shift($condition);
-            return $this->$method($operator, $condition, $params);
-        } else { // hash format: 'column1' => 'value1', 'column2' => 'value2', ...
-            return $this->buildHashCondition($condition, $params);
-        }
-    }
-
-    /**
-     * Creates an SQL expressions like `"column" operator value`.
-     * @param string $operator the operator to use. Anything could be used e.g. `>`, `<=`, etc.
-     * @param array $operands contains two column names.
-     * @param array $params the binding parameters to be populated
-     * @return string the generated SQL expression
-     * @throws InvalidParamException if wrong number of operands have been given.
-     */
-    public function buildSimpleCondition($operator, $operands, &$params) {
-        if (count($operands) !== 2) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
-        }
-
-        list($column, $value) = $operands;
-
-        if (strpos($column, '(') === false) {
-            $column = $this->db->quoteColumnName($column);
-        }
-
-        if ($value === null) {
-            return "$column $operator NULL";
-        } elseif ($value instanceof Expression) {
-            foreach ($value->params as $n => $v) {
-                $params[$n] = $v;
-            }
-            return "$column $operator {$value->expression}";
-        } elseif ($value instanceof Query) {
-            list($sql, $params) = $this->build($value, $params);
-            return "$column $operator ($sql)";
-        } else {
-            $phName = self::PARAM_PREFIX . count($params);
-            $params[$phName] = $value;
-            return "$column $operator $phName";
-        }
+        
+        return $filters;
     }
 
     /**
@@ -176,7 +114,8 @@ class RequestBuilder extends \yii\base\Object {
      */
     public function buildOrderByAndLimit($orderBy, $limit, $offset) {
         return ArrayHelper::merge(
-                        $this->buildOrderBy($orderBy), $this->buildLimit($limit, $offset)
+                $this->buildOrderBy($orderBy), 
+                $this->buildLimit($limit, $offset)
         );
     }
 

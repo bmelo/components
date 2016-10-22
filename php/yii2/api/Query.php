@@ -215,10 +215,9 @@ class Query extends Component
      */
     public function count($api = null)
     {
-        if( empty($this->_lastCommand) ){
-            $this->createCommand($api)->queryAll();
-        }
-        return $this->_lastCommand->getResponseHeader('X-Pagination-Total-Count');
+        $command = $this->createCommand($api);
+        $command->headAll();
+        return $command->getResponseHeader('X-Pagination-Total-Count');
     }
 
     /**
