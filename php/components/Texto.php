@@ -11,7 +11,8 @@ class Texto {
 
     public static function removeAcentos($text, $underscore = false) {
         $text = trim( $text );
-        $text = preg_replace('/[\,`^~\'"]/', null, iconv('UTF-8', 'ASCII//TRANSLIT', $text));
+        $text = preg_replace('/[\,`^~\'":!-\?]/', null, iconv('UTF-8', 'ASCII//TRANSLIT', $text));
+        $text = preg_replace('/\s{2,}/', ' ', $text);
         if ($underscore) {
             $text = preg_replace('/\s/', '_', $text);
         }
