@@ -118,7 +118,7 @@
             var attrsIframe = $.extend({src: url}, params);
             var $loading = $('<i class="fa fa-5x fa fa-cog fa-spin animated">');
             var $pre = $('<div class="pre">').append($loading);
-            var $iframe = $('<iframe frameborder="0">').hide().attr(attrsIframe).load(loading);
+            var $iframe = $('<iframe frameborder="0" allowfullscreen>').hide().attr(attrsIframe).load(loading);
             var idDialog = $(obj).data('dlg') || 'iframeDlg';
             var $dialog = this.criarDialog(idDialog);
             this.confDialog($dialog, obj);
