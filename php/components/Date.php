@@ -187,5 +187,17 @@ class Date {
         $datetime = $now->format("Y-m-d H:i:s.u");
         return substr($datetime, 0, 20 + $precision);
     }
+    
+    static function formatIntl( $date ){
+        $fmt = new IntlDateFormatter(
+                "pt_BR", 
+                IntlDateFormatter::FULL, 
+                IntlDateFormatter::FULL, 
+                'America/Sao_Paulo',
+                IntlDateFormatter::GREGORIAN, 
+                "d 'de' MMMM 'de' y"
+            );
+        return $fmt->parse($date);
+    }
 
 }

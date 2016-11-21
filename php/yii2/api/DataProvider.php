@@ -17,7 +17,7 @@ use yii\di\Instance;
 class DataProvider extends BaseDataProvider
 {
     /**
-     * @var APIConnection|array|string the DB connection object or the application component ID of the DB connection.
+     * @var Connection|array|string the DB connection object or the application component ID of the DB connection.
      * If not set, the default api_url connection will be used.
      */
     public $api;
@@ -60,17 +60,15 @@ class DataProvider extends BaseDataProvider
         if (!$this->query instanceof Query) {
             throw new InvalidConfigException('The "query" property must be an instance of a class bmelo\yii2\api\Query or its subclasses.');
         }
-        $query = clone $this->query;
+        $query = $this->query;
         if (($sort = $this->getSort()) !== false) {
             $query->addOrderBy($sort->getOrders());
         }
-        if (($pagination = $this->getPagination()) !== false) {
+        if( ($pagination = $this->getPagination())!== false ){
+            $pagination->totalCount = $query->count();
             $query->limit($pagination->getLimit())->offset($pagination->getOffset());
         }
         $results = $query->all($this->api);
-        if( $pagination!== false ){
-            $pagination->totalCount = $query->count();
-        }
 
         return $this->buildModels( $results );
     }
@@ -135,7 +133,6 @@ class DataProvider extends BaseDataProvider
      */
     protected function prepareTotalCount()
     {
-        $this->query->all();
         return $this->query->count();
     }
 

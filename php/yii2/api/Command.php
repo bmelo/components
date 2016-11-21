@@ -109,6 +109,19 @@ class Command extends Component
 
         return $this;
     }
+    
+    /**
+     * Executes the SQL statement and returns ALL rows at once.
+     * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
+     * for valid fetch modes. If this parameter is null, the value set in [[fetchMode]] will be used.
+     * @return array all rows of the query result. Each array element is an array representing a row of data.
+     * An empty array is returned if the query results in nothing.
+     * @throws Exception execution failed
+     */
+    public function headAll($fetchMode = null)
+    {
+        return $this->execute('head');
+    }
 
     /**
      * Executes the SQL statement and returns query result.
@@ -280,10 +293,11 @@ class Command extends Component
      * @return integer number of rows affected by the execution.
      * @throws Exception execution failed
      */
-    public function execute()
+    public function execute($method = 'get')
     {
         $request = $this->getRequest();
-        Yii::info($request, __METHOD__);
+        $key = "$method $request?" . http_build_query($this->params);
+        Yii::info($key, __METHOD__);
 
         if ($request == '') {
             return 0;
@@ -294,7 +308,7 @@ class Command extends Component
             Yii::beginProfile($token, __METHOD__);
             
             $curl = new Curl();
-            $this->_response = $curl->get($request, $this->params );
+            $this->_response = $curl->$method($request, $this->params );
 
             Yii::endProfile($token, __METHOD__);
             //Total of items returned

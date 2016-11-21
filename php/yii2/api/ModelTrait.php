@@ -46,4 +46,31 @@ trait ModelTrait {
         return Yii::createObject(ActiveQuery::className(), [ get_called_class()]);
     }
     
+    public function __set( $name, $value ){
+        try{
+            parent::__set($name, $value);
+        }catch(\yii\base\InvalidCallException $e){
+            if( !$this->createRelation( $name, $value ) ){
+                throw $e;
+            }
+        }
+    }
+    
+    public function createRelation($name, $value){
+        // Checking if is a relation
+        $relation = call_user_func([$this, 'get' . ucfirst($name)]);
+        if( $relation instanceof yii\db\ActiveQuery ) {
+            if( !$relation->multiple ){
+                $models = new $relation->modelClass ($value);
+            } else {
+                foreach( $value as $item ){
+                    $models = new $relation->modelClass ($item);
+                }
+            }
+            $this->populateRelation($name, $models);
+            return true;
+        }
+        return false;
+    }
+    
 }
