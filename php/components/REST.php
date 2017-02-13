@@ -14,8 +14,10 @@ class REST {
      * @param type $data array("param" => "value") ==> index.php?param=value
      * @return type
      */
-    public static function request($method, $url, $data = false) {
+    public static function request($method, $url, $data = false, $options = []) {
         $curl = curl_init();
+
+        curl_setopt_array($curl, $options);
 
         switch ($method) {
             case "POST":
