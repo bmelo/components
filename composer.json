@@ -16,21 +16,9 @@
         "ext-curl": "*",
         "maxwen/yii2-curl": "*"
     },
-    "config": {
-        "vendor-dir": "vendor",
-        "minimum-stability" : "stable",
-        "prefer-stable" : true,
-        "store-auths": true
-    },
     "autoload": {
         "psr-4": {
             "bmelo\\": "php"
-        }
-    },
-    "extra": {
-        "asset-installer-paths": {
-            "npm-asset-library": "vendor/npm",
-            "bower-asset-library": "vendor/bower"
         }
     }
 }
